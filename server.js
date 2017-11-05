@@ -23,7 +23,7 @@ router.use(function(req, res, next) {
     next();
 });
 
-router.route('/lab9/insert')
+router.route('/lab10/insert')
     .post(function(req, res) {
 
         console.log(req);
@@ -32,12 +32,12 @@ router.route('/lab9/insert')
             type: req.body.type
         }
 
-        mongo.addObject("Lab9Collection", food);
+        mongo.addObject("Lab10Collection", food);
 
         res.json({ message: "Successfully added " + food.name + " to the database"})
     });
 
-router.route('/lab9/delete')
+router.route('/lab10/delete')
     .post(function(req, res) {
         var food = {
             name: req.body.name
@@ -48,7 +48,7 @@ router.route('/lab9/delete')
         res.json({ message: "Successfully removed " + food.name + " from the database"})
     });
 
-router.get('/lab9/food', function(req, res){
+router.get('/lab10/food', function(req, res){
     var response = mongo.findAllFromCollection("Lab9Collection");
     res.json(response);
 })
@@ -58,7 +58,7 @@ router.get('/yelp/:terms/:language', function(req, res) {
 });
 
 router.get('/', function(req, res) {
-    res.json({msg: 'lab 8 api!'})
+    res.json({msg: 'lab 10 api!'})
 });
 
 

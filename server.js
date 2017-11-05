@@ -39,18 +39,28 @@ router.route('/lab10/insert')
 
 router.route('/lab10/delete')
     .post(function(req, res) {
+        try {
         var food = {
             name: req.body.name
         }
 
         mongo.removeObject("Lab9Collection", food);
 
-        res.json({ message: "Successfully removed " + food.name + " from the database"})
+        res.json({message: "Successfully removed " + food.name + " from the database"})
+        }catch (e){
+            res.code = 500;
+            res.json({msg: e});
+        }
     });
 
 router.get('/lab10/food', function(req, res){
-    var response = mongo.findAllFromCollection("Lab9Collection");
-    res.json(response);
+    try {
+        var response = mongo.findAllFromCollection("Lab9Collection");
+        res.json(response);
+    }catch (e){
+        res.code = 500;
+        res.json({msg: e});
+    }
 })
 
 router.get('/yelp/:terms/:language', function(req, res) {

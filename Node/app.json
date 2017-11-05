@@ -1,4 +1,10 @@
-{
+{  "name": "Lab 10 Node Api",
+  "description": "A test api for basic mongo db writing",
+  "keywords": [
+    "mongo",
+    "api",
+    "node"
+  ],
   "buildpacks": [
     {
       "url": "https://github.com/heroku/heroku-buildpack-nodejs#v83"

@@ -2,11 +2,12 @@
 var express    = require('express');
 var app        = express();
 var bodyParser = require('body-parser');
-var mongo      = require('./app/services/mongo');
-
+var http = require('http').Server(app);
+var io     = require("socket.io")(http);
 
 //Configure App
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser({limit: '50mb'}));
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -17,58 +18,26 @@ app.use(function(req, res, next) {
 var port = process.env.PORT || 4215;
 var router = express.Router();
 
-// Routing Middleware
-router.use(function(req, res, next) {
-    //console.log("req");
-    next();
+app.get('/', function(req, res){
+    res.send('<h1>Listening...</h1>');
 });
 
-router.route('/lab10/insert')
-    .post(function(req, res) {
-
-        console.log(req);
-        var food = {
-            name: req.body.name,
-            type: req.body.type
-        }
-
-        mongo.addObject("Lab10Collection", food);
-
-        res.json({ message: "Successfully added " + food.name + " to the database"})
+io.on('connection', function(socket){
+    console.log('a user connected');
+    socket.on('msg', function(data){
+        console.log('message: ' + data.Message);
+        console.log(data.ChatId);
+        io.emit(data.ChatId, data);
     });
 
-router.route('/lab10/delete')
-    .post(function(req, res) {
-        try {
-        var food = {
-            name: req.body.name
-        }
-
-        mongo.removeObject("Lab9Collection", food);
-
-        res.json({message: "Successfully removed " + food.name + " from the database"})
-        }catch (e){
-            res.code = 500;
-            res.json({msg: e});
-        }
-    });
-
-router.get('/lab10/food', function(req, res){
-    try {
-        var response = mongo.findAllFromCollection("Lab9Collection");
-        res.json(response);
-    }catch (e){
-        res.code = 500;
-        res.json({msg: e});
-    }
-})
-
-router.get('/yelp/:terms/:language', function(req, res) {
-    res.json({message: "yelp endpoint"});
 });
 
-router.get('/', function(req, res) {
-    res.json({msg: 'lab 10 api!'})
+http.listen(3000, function(){
+    console.log('listening on *:3000');
+});
+
+io.on('disconnect', function(){
+    console.log('user disconnected');
 });
 
 
@@ -76,5 +45,5 @@ router.get('/', function(req, res) {
 app.use('/api', router);
 
 //Start Server
-app.listen(port);
+//app.listen(port);
 console.log('Application Port is:  ' + port);

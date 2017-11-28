@@ -32,8 +32,8 @@ io.on('connection', function(socket){
 
 });
 
-http.listen(3000, function(){
-    console.log('listening on *:3000');
+http.listen(port, function(){
+    console.log('listening on *:' + port);
 });
 
 io.on('disconnect', function(){
@@ -46,4 +46,3 @@ app.use('/api', router);
 
 //Start Server
 //app.listen(port);
-console.log('Application Port is:  ' + port);

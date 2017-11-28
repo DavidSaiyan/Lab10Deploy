@@ -16,7 +16,6 @@ app.use(function(req, res, next) {
 });
 
 var port = process.env.PORT || 4215;
-var router = express.Router();
 
 app.get('/', function(req, res){
     res.send('<h1>Listening...</h1>');
@@ -40,9 +39,6 @@ io.on('disconnect', function(){
     console.log('user disconnected');
 });
 
-
-//Register Routes
-app.use('/api', router);
-
 //Start Server
 //app.listen(port);
+console.log('listening on *:' + port);

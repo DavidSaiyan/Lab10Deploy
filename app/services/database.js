@@ -43,6 +43,7 @@ function RegisterUser(user){
             .input('LocationId', sql.Int, 1)
             .input('Provider', sql.NVarChar, user.provider)
             .input('Birthday', sql.NVarChar, user.birthday)
+            .input('ImageUrl', sql.NVarChar, user.imageUrl)
             .execute('RegisterUser')
 }
 
@@ -60,11 +61,15 @@ function getGuests(room){
 }
 
 function search(query, userId, roomId){
+    console.log(query);
+    console.log(userId);
+    console.log(roomId);
     return pool.request()
-        .input('query', sql.NVarChar, query)
-        .input('userId', sql.NVarChar, userId)
-        .input('roomId', sql.NVarChar, roomId)
+        .input('Query', sql.NVarChar, query)
+        .input('UserId', sql.Int, userId)
+        .input('RoomId', sql.NVarChar, roomId)
         .execute('Search')
+
 }
 
 function InsertMessage(msg){

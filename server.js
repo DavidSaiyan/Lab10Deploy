@@ -7,7 +7,14 @@ var io     = require("socket.io")(http);
 var cors = require('cors');
 
 var db = require('./app/services/database.js');
-db.connectSql();
+
+function connect(){
+    try{
+        db.connectSql();
+    }catch(err){
+        console.log('Connection already open. Will use existing connection.');
+    }
+}
 
 //Configure App
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,6 +31,11 @@ app.use(cors());
 
 var port = process.env.PORT || 4215;
 var router = express.Router();
+
+app.use(function (req, res, next){
+    connect();
+    next();
+});
 
 app.get('/', function(req, res){
     res.send('<h1>Listening...</h1>');
@@ -116,8 +128,8 @@ app.post('/addfriend', function (req, res){
         })
 });
 
-app.get('/search/:query/:userId/:roomId', function (req, res){
-    db.search(req.params.query).then(function (data){
+app.get('/search/:query/:user/:roomId', function (req, res){
+    db.search(req.params.query, req.params.user, req.params.roomId).then(function (data){
         console.log(data);
             res.json(data.recordset);
         },
@@ -154,7 +166,6 @@ app.post('/register', function (req, res){
         if(resp.recordset.length > 0 && resp.recordset[0].username === req.body.username){
             res.json('The user already exists');
         }
-        db.close();
         db.RegisterUser(req.body).then(function (data){
                 res.json('Successfully registered ' + req.body.username);
             },

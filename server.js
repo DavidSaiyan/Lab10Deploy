@@ -6,6 +6,7 @@ var http = require('http').Server(app);
 var io     = require("socket.io")(http);
 
 var db = require('./app/services/database.js');
+db.connectSql();
 
 //Configure App
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,7 +27,6 @@ app.get('/', function(req, res){
 
 app.get('/languages', function (req, res){
     db.getLanguages().then(function (data){
-        db.close();
         res.json(data.recordset);
     },
     function (err){
@@ -38,7 +38,6 @@ app.get('/languages', function (req, res){
 
 app.post('/signin', function (req, res){
     db.SignIn(req.body).then(function (data){
-            db.close();
             res.json(data.recordset);
         },
         function (err){
@@ -49,9 +48,7 @@ app.post('/signin', function (req, res){
 });
 
 app.post('/getrooms', function (req, res){
-    db.close();
     db.getRooms(req.body).then(function (data){
-            db.close();
             res.json(data.recordset);
         },
         function (err){
@@ -64,12 +61,10 @@ app.post('/getrooms', function (req, res){
 app.post('/addguest', function (req, res){
     console.log('adding guest');
     db.addGuest(req.body).then(function (data){
-            db.close();
             res.json('successfully added guest.');
         },
         function (err){
             console.log(err);
-            db.close();
             return err;
         })
 });
@@ -77,12 +72,10 @@ app.post('/addguest', function (req, res){
 app.post('/removeguest', function (req, res){
     console.log('adding guest');
     db.removeGuest(req.body).then(function (data){
-            db.close();
             res.json('Successfully removed guest');
         },
         function (err){
             console.log(err);
-            db.close();
             return err;
         })
 });
@@ -90,7 +83,6 @@ app.post('/removeguest', function (req, res){
 
 app.post('/getguests', function (req, res){
     db.getGuests(req.body).then(function (data){
-            db.close();
             res.json(data.recordset);
         },
         function (err){
@@ -102,70 +94,85 @@ app.post('/getguests', function (req, res){
 
 app.post('/addroom', function (req, res){
     db.addRoom(req.body).then(function (data){
-            db.close();
             res.json(data.recordset);
         },
         function (err){
             console.log(err);
-            db.close();
             return err;
         })
 });
 
 app.post('/addfriend', function (req, res){
     db.addFriend(req.body).then(function (data){
-            db.close();
             res.json('You are now friends with ' + req.body.name);
         },
         function (err){
             console.log(err);
-            db.close();
+            return err;
+        })
+});
+
+app.get('/search/:query/:userId/:roomId', function (req, res){
+    db.search(req.params.query).then(function (data){
+        console.log(data);
+            res.json(data.recordset);
+        },
+        function (err){
+            console.log(err);
             return err;
         })
 });
 
 app.post('/getfriends', function (req, res){
     db.getFriends(req.body).then(function (data){
-            db.close();
             res.json(data.recordset);
         },
         function (err){
             console.log(err);
-            db.close();
             return err;
         })
 });
+
+app.get('/getmessages/:roomId', function (req, res){
+    db.GetMessages(req.params.roomId).then(function (data){
+            res.json(data.recordset);
+        },
+        function (err){
+            console.log(err);
+            return err;
+        })
+});
+
 
 app.post('/register', function (req, res){
     db.checkIfUserExists(req.body.username).then(function (resp){
         //console.log(resp.recordset[0].username);
         if(resp.recordset.length > 0 && resp.recordset[0].username === req.body.username){
-            db.close();
             res.json('The user already exists');
         }
         db.close();
         db.RegisterUser(req.body).then(function (data){
-                db.close();
                 res.json('Successfully registered ' + req.body.username);
             },
             function (err){
                 console.log(err);
-                db.close();
                 return err;
             })
     }, function (err){
         console.log(err);
-        db.close()
         return err;
     })
 });
 
+io.removeAllListeners();
 
 io.on('connection', function(socket){
+    socket.removeAllListeners();
     console.log('a user connected');
     socket.on('msg', function(data){
         console.log('message: ' + data.Message);
         console.log(data.ChatId);
+        db.InsertMessage(data);
         io.emit(data.ChatId, data);
     });
 
